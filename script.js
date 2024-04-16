@@ -13,6 +13,9 @@ const getCountryData = function (country) {
   request.addEventListener("load", function () {
     const [data] = JSON.parse(this.responseText);
     console.log(data);
+    const currency = Object.values(data.currencies)[0].name;
+    const languages = Object.values(data.languages);
+    console.log(currency, languages);
     // Now add cards
     const html = `<article class="country">
   <img class="country__img" src="${data.flags.png}" />
@@ -22,8 +25,11 @@ const getCountryData = function (country) {
     <p class="country__row"><span>👫</span>${(
       data.population / 1000000
     ).toFixed(1)} people</p>
-    <p class="country__row"><span>🗣️</span>${data.languages.por}</p>
-    <p class="country__row"><span>💰</span>${data.currencies.EUR.name}</p>
+    <p class="country__row"><span>🗣️</span>${Object.values(data.languages).join(
+      ", "
+    )}</p>
+    <p class="country__row"><span>💰</span>${currency}</p>
+   
   </div>
   </article>`;
     countriesContainer.insertAdjacentHTML("beforeend", html);
@@ -33,4 +39,5 @@ const getCountryData = function (country) {
 
 getCountryData("portugal");
 getCountryData("germany");
+getCountryData("pakistan");
 getCountryData("usa");
