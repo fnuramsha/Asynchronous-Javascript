@@ -3,21 +3,18 @@
 const btn = document.querySelector(".btn-country");
 const countriesContainer = document.querySelector(".countries");
 
-///////////////////////////////////////
-const getCountryData = function (country) {
-  const request = new XMLHttpRequest();
-  request.open("GET", `https://restcountries.com/v3.1/name/${country}`);
-  // request.open("GET", "https://restcountries.eu/rest/v2/name/portugal");
-  request.send();
+// ///////////////////////////////////////
 
-  request.addEventListener("load", function () {
-    const [data] = JSON.parse(this.responseText);
-    console.log(data);
-    const currency = Object.values(data.currencies)[0].name;
-    const languages = Object.values(data.languages);
-    console.log(currency, languages);
-    // Now add cards
-    const html = `<article class="country">
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText("beforeend", msg);
+   --};
+
+const renderData = function (data, className = "") {
+  const currency = Object.values(data.currencies)[0].name;
+  const languages = Object.values(data.languages);
+  console.log(currency, languages);
+  // Now add cards
+  const html = `<article class="country" ${className}>
   <img class="country__img" src="${data.flags.png}" />
   <div class="country__data">
     <h3 class="country__name">${data.name.common}</h3>
@@ -29,15 +26,70 @@ const getCountryData = function (country) {
       ", "
     )}</p>
     <p class="country__row"><span>💰</span>${currency}</p>
-   
+
   </div>
   </article>`;
-    countriesContainer.insertAdjacentHTML("beforeend", html);
-    countriesContainer.style.opacity = 1;
-  });
+  countriesContainer.insertAdjacentHTML("beforeend", html);
+};
+// const getCountryAndNeigbhourData = function (country) {
+//   const request = new XMLHttpRequest();
+//   request.open("GET", `https://restcountries.com/v3.1/name/${country}`);
+//   //   // request.open("GET", "https://restcountries.eu/rest/v2/name/portugal");
+//   request.send();
+
+//   request.addEventListener("load", function () {
+//     const [data] = JSON.parse(this.responseText);
+//     console.log(data);
+//     renderData(data);
+//     // Get second country
+//     const [neighbor] = data.borders;
+//     console.log(neighbor);
+//     if (!neighbor) return;
+//     const request2 = new XMLHttpRequest();
+//     request2.open("GET", `https://restcountries.com/v3.1/alpha/${neighbor}`);
+//     // request.open("GET", "https://restcountries.eu/rest/v2/name/portugal");
+//     request2.send();
+
+//     request2.addEventListener("load", function () {
+//       console.log(this.responseText);
+//       const [data2] = JSON.parse(this.responseText);
+//       console.log(data2);
+//       renderData(data2, "neighbor");
+//     });
+//   });
+// };
+
+// getCountryAndNeigbhourData("germany");
+// getCountryAndNeigbhourData("germany");
+// getCountryAndNeigbhourData("pakistan");
+// getCountryAndNeigbhourData("usa");
+
+// const request = fetch("https://restcountries.com/v3.1/name/portugal");
+// console.log(request);
+
+const getCountryData = function (country) {
+  fetch(`https://restcountries.com/v3.1/name/${country}`)
+    .then((response) => response.json())
+    .then((data) => {
+      renderData(data[0]);
+
+      const neighbor = data[0].borders[0];
+      if (!neighbor) return;
+      return fetch(`https://restcountries.com/v3.1/alpha/${neighbor}`);
+    })
+    .then((response) => response.json())
+    .then((data) => renderData(data[0], "neighbor"))
+    .catch((err) => {
+      console.error(`${err}`);
+      renderError(`Something went wrong. ${err.message} Try again!`);
+    })
+    .finally(() => {
+      countriesContainer.style.opacity = 1;
+    });
 };
 
-getCountryData("portugal");
-getCountryData("germany");
-getCountryData("pakistan");
-getCountryData("usa");
+btn.addEventListener("click", function () {
+  getCountryData("usa");
+});
+
+getCountryData("hdgjh");
