@@ -7,7 +7,7 @@ const countriesContainer = document.querySelector(".countries");
 
 const renderError = function (msg) {
   countriesContainer.insertAdjacentText("beforeend", msg);
-   --};
+};
 
 const renderData = function (data, className = "") {
   const currency = Object.values(data.currencies)[0].name;
@@ -67,17 +67,30 @@ const renderData = function (data, className = "") {
 // const request = fetch("https://restcountries.com/v3.1/name/portugal");
 // console.log(request);
 
+const getJSON = function (url, errorMsg) {
+  return fetch(url).then((response) => {
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`${errorMsg} ${response.status}`);
+    }
+    return response.json();
+  });
+};
+
 const getCountryData = function (country) {
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then((response) => response.json())
+  getJSON(`https://restcountries.com/v3.1/name/${country}`, "Country not found")
     .then((data) => {
       renderData(data[0]);
 
       const neighbor = data[0].borders[0];
-      if (!neighbor) return;
-      return fetch(`https://restcountries.com/v3.1/alpha/${neighbor}`);
+
+      if (!neighbor) throw new Error("No neighbor found");
+      return getJSON(
+        `https://restcountries.com/v3.1/alpha/${neighbor}`,
+        "Country not found"
+      );
     })
-    .then((response) => response.json())
+
     .then((data) => renderData(data[0], "neighbor"))
     .catch((err) => {
       console.error(`${err}`);
@@ -91,5 +104,4 @@ const getCountryData = function (country) {
 btn.addEventListener("click", function () {
   getCountryData("usa");
 });
-
-getCountryData("hdgjh");
+getCountryData("australia");
